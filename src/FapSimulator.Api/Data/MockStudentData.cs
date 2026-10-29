@@ -6,7 +6,7 @@ public static class MockStudentData
 {
     public static readonly IReadOnlyList<StudentProfileDto> Students =
     [
-        new("SE180001", "Demo Student 001", "student001@example.test", "Software Engineering", "Hoa Lac", "Active", "Fall2026"),
+        new("SE180001", "Demo Student 001", "dat2305204@gmail.com", "Software Engineering", "Hoa Lac", "Active", "Fall2026"),
         new("SE180002", "Demo Student 002", "student002@example.test", "Software Engineering", "Hoa Lac", "Active", "Fall2026"),
         new("SE180003", "Demo Student 003", "student003@example.test", "Software Engineering", "Hoa Lac", "Active", "Fall2026"),
         new("SE180004", "Demo Student 004", "student004@example.test", "Software Engineering", "Hoa Lac", "Active", "Fall2026"),
