@@ -5,35 +5,36 @@ namespace FapSimulator.Api.Services;
 
 public sealed class StudentLookupService
 {
-    private readonly IReadOnlyDictionary<string, StudentProfileDto> profiles =
+    private readonly IReadOnlyDictionary<string, StudentProfileDto> profilesByEmail =
         MockStudentData.Students.ToDictionary(
-            profile => profile.RollNumber,
+            profile => profile.StudentEmail,
             StringComparer.OrdinalIgnoreCase);
 
     public StudentLookupService()
     {
-        if (profiles.Count != 150 || MockAcademicData.SemestersByRollNumber.Count != 150)
+        if (profilesByEmail.Count != 150 || MockAcademicData.SemestersByRollNumber.Count != 150)
         {
             throw new InvalidOperationException(
                 "FAP Simulator must contain exactly 150 complete student records.");
         }
     }
 
-    public StudentProfileDto? GetProfile(string rollNumber) =>
-        profiles.GetValueOrDefault(rollNumber);
+    public StudentProfileDto? GetProfile(string email) =>
+        profilesByEmail.GetValueOrDefault(email);
 
-    public StudentAcademicRecordDto? GetAcademicRecord(string rollNumber)
+    public StudentAcademicRecordDto? GetAcademicRecord(string email)
     {
-        if (!profiles.ContainsKey(rollNumber) ||
-            !MockAcademicData.SemestersByRollNumber.TryGetValue(rollNumber, out var semesters))
+        if (!profilesByEmail.TryGetValue(email, out var profile) ||
+            string.IsNullOrWhiteSpace(profile.RollNumber) ||
+            !MockAcademicData.SemestersByRollNumber.TryGetValue(profile.RollNumber, out var semesters))
         {
             return null;
         }
 
         return AcademicGradeCalculator.BuildRecord(
-            profiles[rollNumber].RollNumber,
+            profile.RollNumber,
             semesters,
-            MockAchievementData.RewardsByRollNumber.GetValueOrDefault(rollNumber) ?? [],
-            MockAchievementData.DisciplinesByRollNumber.GetValueOrDefault(rollNumber) ?? []);
+            MockAchievementData.RewardsByRollNumber.GetValueOrDefault(profile.RollNumber) ?? [],
+            MockAchievementData.DisciplinesByRollNumber.GetValueOrDefault(profile.RollNumber) ?? []);
     }
 }

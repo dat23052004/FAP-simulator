@@ -1,15 +1,15 @@
 # FAP Simulator
 
-FAP Simulator is a small .NET 9 API used by RLAMS for local/demo integration. It contains fictional, deterministic data only: 150 explicitly declared student profiles and fixed academic templates mapped to every roll number. It has no database and no write API.
+FAP Simulator is a small .NET 9 API used by RLAMS for local/demo integration. It contains fictional, deterministic data only: 150 explicitly declared student profiles and fixed academic templates. Student APIs are looked up by email; roll number remains part of the returned profile and academic data. It has no database and no write API.
 
 ## API
 
 Both business endpoints require `X-Api-Key`:
 
-- `GET /api/v1/students/{rollNumber}` returns personal profile fields only.
-- `GET /api/v1/students/{rollNumber}/academic-record` returns completed semesters, final course scores, GPA/credits, rewards and disciplines.
+- `GET /api/v1/students/by-email/{email}` returns personal profile fields only.
+- `GET /api/v1/students/by-email/{email}/academic-record` returns completed semesters, final course scores, GPA/credits, rewards and disciplines.
 
-Responses use `400` for an invalid roll-number format, `401` for a missing or invalid API key, and `404` for a well-formed roll number that is not in the demo data.
+Responses use `400` for an invalid email format, `401` for a missing or invalid API key, and `404` for a valid email that is not in the demo data.
 
 ## Run locally
 
@@ -24,8 +24,8 @@ Example:
 
 ```powershell
 $headers = @{ 'X-Api-Key' = $env:Fap__ApiKey }
-Invoke-RestMethod http://localhost:5002/api/v1/students/SE180001 -Headers $headers
-Invoke-RestMethod http://localhost:5002/api/v1/students/SE180001/academic-record -Headers $headers
+Invoke-RestMethod 'http://localhost:5002/api/v1/students/by-email/dat2305204%40gmail.com' -Headers $headers
+Invoke-RestMethod 'http://localhost:5002/api/v1/students/by-email/dat2305204%40gmail.com/academic-record' -Headers $headers
 ```
 
 ## Verify

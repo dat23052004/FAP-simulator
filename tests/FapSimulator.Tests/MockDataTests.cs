@@ -33,7 +33,7 @@ public sealed class MockDataTests
             });
         }
 
-        var example = new StudentLookupService().GetAcademicRecord("SE180001");
+        var example = new StudentLookupService().GetAcademicRecord("dat2305204@gmail.com");
         Assert.NotNull(example);
         Assert.Equal(3.51m, example.AcademicSummary.CurrentGpa);
         Assert.Equal(34, example.AcademicSummary.AttemptedCredits);

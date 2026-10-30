@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+using System.Net.Mail;
 using FapSimulator.Api.Middleware;
 using FapSimulator.Api.Services;
 
@@ -19,17 +19,17 @@ if (app.Environment.IsDevelopment())
 
 var students = app.MapGroup("/api/v1/students");
 
-students.MapGet("/{rollNumber}", (string rollNumber, StudentLookupService service) =>
+students.MapGet("/by-email/{email}", (string email, StudentLookupService service) =>
 {
-    if (!RollNumberValidator.IsValid(rollNumber))
+    if (!EmailAddressValidator.IsValid(email))
     {
         return Results.Problem(
             statusCode: StatusCodes.Status400BadRequest,
-            title: "Invalid roll number.",
-            detail: "Roll number must use the format SE followed by six digits.");
+            title: "Invalid email.",
+            detail: "A valid student email address is required.");
     }
 
-    var profile = service.GetProfile(rollNumber);
+    var profile = service.GetProfile(email);
     return profile is null
         ? Results.Problem(
             statusCode: StatusCodes.Status404NotFound,
@@ -39,17 +39,17 @@ students.MapGet("/{rollNumber}", (string rollNumber, StudentLookupService servic
 .WithName("GetStudentProfile")
 .WithSummary("Returns the demo student's personal profile.");
 
-students.MapGet("/{rollNumber}/academic-record", (string rollNumber, StudentLookupService service) =>
+students.MapGet("/by-email/{email}/academic-record", (string email, StudentLookupService service) =>
 {
-    if (!RollNumberValidator.IsValid(rollNumber))
+    if (!EmailAddressValidator.IsValid(email))
     {
         return Results.Problem(
             statusCode: StatusCodes.Status400BadRequest,
-            title: "Invalid roll number.",
-            detail: "Roll number must use the format SE followed by six digits.");
+            title: "Invalid email.",
+            detail: "A valid student email address is required.");
     }
 
-    var record = service.GetAcademicRecord(rollNumber);
+    var record = service.GetAcademicRecord(email);
     return record is null
         ? Results.Problem(
             statusCode: StatusCodes.Status404NotFound,
@@ -63,10 +63,11 @@ app.Run();
 
 public partial class Program;
 
-internal static partial class RollNumberValidator
+internal static class EmailAddressValidator
 {
-    public static bool IsValid(string value) => Pattern().IsMatch(value);
-
-    [GeneratedRegex("^SE\\d{6}$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
-    private static partial Regex Pattern();
+    public static bool IsValid(string value) =>
+        !string.IsNullOrWhiteSpace(value) &&
+        value.Length <= 254 &&
+        MailAddress.TryCreate(value, out var address) &&
+        string.Equals(address.Address, value, StringComparison.OrdinalIgnoreCase);
 }

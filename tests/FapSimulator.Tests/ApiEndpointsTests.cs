@@ -21,14 +21,15 @@ public sealed class ApiEndpointsTests : IClassFixture<WebApplicationFactory<Prog
         using var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add("X-Api-Key", "integration-test-key");
 
-        using var profileResponse = await client.GetAsync("/api/v1/students/SE180001");
+        using var profileResponse = await client.GetAsync(
+            "/api/v1/students/by-email/dat2305204%40gmail.com");
         Assert.Equal(HttpStatusCode.OK, profileResponse.StatusCode);
         using var profile = JsonDocument.Parse(await profileResponse.Content.ReadAsStringAsync());
         Assert.Equal("SE180001", profile.RootElement.GetProperty("rollNumber").GetString());
         Assert.False(profile.RootElement.TryGetProperty("academicSummary", out _));
 
         using var academicResponse = await client.GetAsync(
-            "/api/v1/students/SE180001/academic-record");
+            "/api/v1/students/by-email/dat2305204%40gmail.com/academic-record");
         Assert.Equal(HttpStatusCode.OK, academicResponse.StatusCode);
         using var academic = JsonDocument.Parse(await academicResponse.Content.ReadAsStringAsync());
         Assert.Equal(3.51m, academic.RootElement
@@ -43,7 +44,8 @@ public sealed class ApiEndpointsTests : IClassFixture<WebApplicationFactory<Prog
     {
         using var client = factory.CreateClient();
 
-        using var response = await client.GetAsync("/api/v1/students/SE180001");
+        using var response = await client.GetAsync(
+            "/api/v1/students/by-email/dat2305204%40gmail.com");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
